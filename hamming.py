@@ -48,7 +48,7 @@ class Hamming:
                 word = [int(e) for e in list(line[i * 7: i * 7 + 7])]
                 control = np.dot(self.H, word) % 2
                 if (1 in control):
-                    i = int('{}{}{}'.format(*control), 2)
+                    i = int(''.join(str(e) for e in control), 2)
                     word[i - 1] = (word[i - 1] + 1) % 2
                 decoded.append(word[0:4])
             decoded.append('\n')
