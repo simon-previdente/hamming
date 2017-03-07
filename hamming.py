@@ -64,23 +64,23 @@ if __name__ == '__main__':
     with open('source.txt', 'r') as source:
         content = source.read()
         coded_message = hamming.encode(content)
-    with open('emis.txt', 'w') as dest:
+    with open('build/emis.txt', 'w') as dest:
         for coded_word in coded_message:
             dest.write(''.join(str(word) for word in coded_word))
 
     # Corrupt
     corrupted_message = []
-    with open('emis.txt', 'r') as source:
+    with open('build/emis.txt', 'r') as source:
         content = source.read()
         corrupted_message = hamming.corrupt(content)
-    with open('recu.txt', 'w') as dest:
+    with open('build/recu.txt', 'w') as dest:
         for corrupted_word in corrupted_message:
             dest.write(''.join(str(word) for word in corrupted_word))
 
     # Decode
-    with open('recu.txt', 'r') as source:
+    with open('build/recu.txt', 'r') as source:
         content = source.read()
         decoded_message = hamming.decode(content)
-    with open('message.txt', 'w') as dest:
+    with open('build/message.txt', 'w') as dest:
         for decoded_word in decoded_message:
             dest.write(''.join(str(word) for word in decoded_word))
