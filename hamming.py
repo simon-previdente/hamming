@@ -8,32 +8,50 @@ class Hamming:
         self.H = H
         self.G = G
 
+    def cut_and_fill_lines(self, M, n):
+        lines = M.split('\n')
+        for index, line in enumerate(lines):
+            if len(line) % n == 0:
+                continue
+            for i in range(0, n - len(line) % n):
+                lines[index] += '1'
+        return lines
+
     def encode(self, M):
         encoded = []
-        for i in range(0, int(len(M) / 4)):
-            word = [int(e) for e in list(M[i * 4: i * 4 + 4])]
-            encoded.append(np.dot(word, self.G) % 2)
+        lines = self.cut_and_fill_lines(M=M, n=4)
+        for line in lines:
+            for i in range(0, int(len(line) / 4)):
+                word = [int(e) for e in list(line[i * 4: i * 4 + 4])]
+                encoded.append(np.dot(word, self.G) % 2)
+            encoded.append('\n')
         return encoded
 
     def corrupt(self, M):
         corrupted = []
-        for i in range(0, int(len(M) / 7)):
-            word = [int(e) for e in list(M[i * 7: i * 7 + 7])]
-            corrupt = random.randrange(start=0, step=1, stop=6)
-            if (corrupt < len(word)):
-                word[corrupt] = (word[corrupt] + 1) % 2
-            corrupted.append(word)
+        lines = self.cut_and_fill_lines(M=M, n=7)
+        for line in lines:
+            for i in range(0, int(len(line) / 7)):
+                word = [int(e) for e in list(line[i * 7: i * 7 + 7])]
+                corrupt = random.randrange(start=0, step=1, stop=6)
+                if (corrupt < len(word)):
+                    word[corrupt] = (word[corrupt] + 1) % 2
+                corrupted.append(word)
+            corrupted.append('\n')
         return corrupted
 
     def decode(self, M):
         decoded = []
-        for i in range(0, int(len(M) / 7)):
-            word = [int(e) for e in list(M[i * 7: i * 7 + 7])]
-            control = np.dot(self.H, word) % 2
-            if (1 in control):
-                i = int('{}{}{}'.format(*control), 2)
-                word[i - 1] = (word[i - 1] + 1) % 2
-            decoded.append(word[0:4])
+        lines = self.cut_and_fill_lines(M=M, n=7)
+        for line in lines:
+            for i in range(0, int(len(line) / 7)):
+                word = [int(e) for e in list(line[i * 7: i * 7 + 7])]
+                control = np.dot(self.H, word) % 2
+                if (1 in control):
+                    i = int('{}{}{}'.format(*control), 2)
+                    word[i - 1] = (word[i - 1] + 1) % 2
+                decoded.append(word[0:4])
+            decoded.append('\n')
         return decoded
 
 
@@ -44,7 +62,7 @@ if __name__ == '__main__':
     # Encode
     coded_message = []
     with open('source.txt', 'r') as source:
-        content = source.read().replace('\n', '')
+        content = source.read()
         coded_message = hamming.encode(content)
     with open('emis.txt', 'w') as dest:
         for coded_word in coded_message:
@@ -53,7 +71,7 @@ if __name__ == '__main__':
     # Corrupt
     corrupted_message = []
     with open('emis.txt', 'r') as source:
-        content = source.read().replace('\n', '')
+        content = source.read()
         corrupted_message = hamming.corrupt(content)
     with open('recu.txt', 'w') as dest:
         for corrupted_word in corrupted_message:
@@ -61,7 +79,7 @@ if __name__ == '__main__':
 
     # Decode
     with open('recu.txt', 'r') as source:
-        content = source.read().replace('\n', '')
+        content = source.read()
         decoded_message = hamming.decode(content)
     with open('message.txt', 'w') as dest:
         for decoded_word in decoded_message:
