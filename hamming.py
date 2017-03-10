@@ -27,17 +27,21 @@ class Hamming:
             encoded.append('\n')
         return encoded
 
-    def corrupt(self, M):
+    def corrupt(self, M, probability=0):
+        if (probability == 0):
+            pass
+        elif (probability < 1):
+            probability = 1 / probability
         corrupted = []
         lines = self.cut_and_fill_lines(M=M, n=7)
         for line in lines:
-            for i in range(0, int(len(line) / 7)):
-                word = [int(e) for e in list(line[i * 7: i * 7 + 7])]
-                corrupt = random.randrange(start=0, step=1, stop=6)
-                if (corrupt < len(word)):
-                    word[corrupt] = (word[corrupt] + 1) % 2
-                corrupted.append(word)
-            corrupted.append('\n')
+            for index, char in enumerate(line):
+                if (probability == 0):
+                    continue
+                corrupt = random.randint(a=1, b=probability)
+                if (corrupt == 1):
+                    line = line[:index] + str((int(char) + 1) % 2) + line[index + 1:]
+            corrupted.append(line + '\n')
         return corrupted
 
     def decode(self, M):
@@ -72,7 +76,10 @@ if __name__ == '__main__':
     corrupted_message = []
     with open('build/emis.txt', 'r') as source:
         content = source.read()
-        corrupted_message = hamming.corrupt(content)
+        corrupted_message = hamming.corrupt(
+            M=content,
+            probability=(1 / 10)
+        )
     with open('build/recu.txt', 'w') as dest:
         for corrupted_word in corrupted_message:
             dest.write(''.join(str(word) for word in corrupted_word))
