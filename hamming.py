@@ -14,7 +14,7 @@ class Hamming:
             if len(line) % n == 0:
                 continue
             for i in range(0, n - len(line) % n):
-                lines[index] += '1'
+                lines[index] += lines[-1]  # Fill with last line character
         return lines
 
     def encode(self, M):
